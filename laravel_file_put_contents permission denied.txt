@@ -1,0 +1,5 @@
+1. $ php artisan cache:clear
+
+2. $ sudo chmod -R 777 storage
+
+3. $ composer dump-autoload
