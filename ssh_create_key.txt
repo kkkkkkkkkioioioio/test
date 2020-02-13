@@ -1,0 +1,6 @@
+linux ssh create key
+
+ssh-keygen -t rsa -b 4096 -C "your_email@example.com"
+
+ssh-add ~/.ssh/id_rsa  id_rsa 替換創建的key名稱
+
