@@ -1,0 +1,60 @@
+sudo systemctl status rc-local
+
+sudo systemctl enable rc-local
+
+output:
+The unit files have no [Install] section. They are not meant to be enabled
+ using systemctl.
+ Possible reasons for having this kind of units are:
+ 1) A unit may be statically enabled by being symlinked from another unit's
+ .wants/ or .requires/ directory.
+ 2) A unit's purpose may be to act as a helper for some other unit which has
+ a requirement dependency on it.
+ 3) A unit may be started when needed via activation (socket, path, timer,
+ D-Bus, udev, scripted systemctl call, ...).
+
+
+The solution
+
+sudo nano /etc/systemd/system/rc-local.service
+
+Then add the following content to it.
+
+[Unit]
+ Description=/etc/rc.local Compatibility
+ ConditionPathExists=/etc/rc.local
+
+[Service]
+ Type=forking
+ ExecStart=/etc/rc.local start
+ TimeoutSec=0
+ StandardOutput=tty
+ RemainAfterExit=yes
+ SysVStartPriority=99
+
+[Install]
+ WantedBy=multi-user.target
+
+sudo chmod +x /etc/rc.local
+
+printf '%s\n' '#!/bin/bash' 'exit 0' | sudo tee -a /etc/rc.local
+
+sudo chmod +x /etc/rc.local
+
+sudo systemctl enable rc-local
+
+output:
+
+Created symlink from /etc/systemd/system/multi-user.target.wants/rc-local.service to /etc/systemd/system/rc-local.service.
+
+sudo systemctl start rc-local.service
+sudo systemctl status rc-local.service
+
+Output:
+
+● rc-local.service - /etc/rc.local Compatibility
+ Loaded: loaded (/etc/systemd/system/rc-local.service; enabled; vendor preset: enabled)
+ Active: active (running) since Fri 2015-11-27 00:32:56 CST; 14min ago
+ Process: 879 ExecStart=/etc/rc.local start (code=exited, status=0/SUCCESS)
+ Main PID: 880 (watch)
+ CGroup: /system.slice/rc-local.service
